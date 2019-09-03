@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 	double Zx2, Zy2; /* Zx2 = Zx*Zx;  Zy2 = Zy*Zy  */
 	/*  */
 	int Iteration;
-	const int IterationMax = 1000; // default
+	const int IterationMax = 2000; // default
 
 	/* bail-out value , radius of circle ;  */
 	const double EscapeRadius = 400;
