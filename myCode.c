@@ -155,7 +155,6 @@ int main(int argc, char* argv[])
 				current += rows_per_procs*iXmax*3;
 			}
 		}
-		endTime = MPI_Wtime();
 		current = 0;
 		for (j=root; j<rows_per_procs+1; j++) {
 			if (j == rows_per_procs) {
@@ -178,7 +177,7 @@ int main(int argc, char* argv[])
 				}
 			}
 		}
-		
+		endTime = MPI_Wtime();
 		printf("Completed Computing Mandelbrot Set.\n");
 		printf("File: %s successfully closed.\n", filename);
 		printf("Mandelbrot computational process time: %lf\n", parallelEnd-startTime);
