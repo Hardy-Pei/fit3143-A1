@@ -1,6 +1,6 @@
 #!/bin/bash
  
-#SBATCH --job-name=serial
+#SBATCH --job-name=parallel
 
 ### how much time, this job takes < one minute, we just put 30 mins
 #SBATCH --time=00:30:00
@@ -9,15 +9,17 @@
 #SBATCH --mem=32G
 
 ### how many processes in this job
-#SBATCH --ntasks=1
+#SBATCH --ntasks=8
 
 ### change the 1 below to match the # of cores needed
 #SBATCH --cpus-per-task=1
+#SBATCH --ntasks-per-node=8
 
 #SBATCH --account=fit3143
 #SBATCH --qos=fit3143
 ##SBATCH --partition=gcp
 
-./a.out
+module load openmpi/1.10.7-xml
+srun ./run
 
 exit 0
