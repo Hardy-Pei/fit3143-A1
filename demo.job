@@ -9,4 +9,4 @@
 #SBATCH --qos=fit3143
 ##SBATCH --partition=gquick
 module load openmpi/1.10.7-mlx
-mpirun -n 1 ./run
+srun run
