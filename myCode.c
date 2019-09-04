@@ -56,20 +56,20 @@ int main(int argc, char* argv[])
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	
 	/* Clock information */
-	double startTime, endTime, parallelEnd;
+	double startTime, endTime;
 
 	// Get current clock time.
 	/* compute and write image data bytes to the file */
 	rows_per_procs = iYmax / size;
 	row_remain = iYmax % size;
 	if (rank == root) {
+		startTime = MPI_Wtime();
 		/*create new file,give it a name and open it in binary mode  */
 		fp = fopen(filename, "wb"); /* b -  binary mode */
 		/*write ASCII header to the file (PPM file format)*/
 		fprintf(fp,"P6\n %s\n %d\n %d\n %d\n", comment, iXmax, iYmax, MaxColorComponentValue);
 		printf("File: %s successfully opened for writing.\n", filename);
 		printf("Computing Mandelbrot Set. Please wait...\n");
-		startTime = MPI_Wtime();
 		colors = (unsigned char*) malloc((iYmax*iXmax*3)*sizeof(unsigned char));
 	} else if (rank < row_remain) {
 		colors = (unsigned char*) malloc(((rows_per_procs+1)*iXmax*3)*sizeof(unsigned char));
@@ -144,7 +144,6 @@ int main(int argc, char* argv[])
 	// Get the clock current time again
 	// Subtract end from start to get the CPU time used.
 	if (rank == root) {
-		parallelEnd = MPI_Wtime();
 		current += iXmax*3;
 		for (i=1; i<size; i++) {
 			if (i<row_remain) {
@@ -180,8 +179,7 @@ int main(int argc, char* argv[])
 		endTime = MPI_Wtime();
 		printf("Completed Computing Mandelbrot Set.\n");
 		printf("File: %s successfully closed.\n", filename);
-		printf("Mandelbrot computational process time: %lf\n", parallelEnd-startTime);
-		printf("my time: %lf\n", endTime-parallelEnd);
+		printf("Mandelbrot computational process time: %lf\n", endTime-startTime);
 		fclose(fp);
 	} else if (rank < row_remain) {
 		MPI_Send(colors, (rows_per_procs+1)*iXmax*3, MPI_UNSIGNED_CHAR, 0, 0, MPI_COMM_WORLD);
