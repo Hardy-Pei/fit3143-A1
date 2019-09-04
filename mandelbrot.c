@@ -58,11 +58,12 @@ int main()
 	double ER2 = EscapeRadius * EscapeRadius;
 	
 	/* Clock information */
-	clock_t start, end;
+	clock_t start, end, startCom;
 	double cpu_time_used;
 
 	/*create new file,give it a name and open it in binary mode  */
 	fp = fopen(filename, "wb"); /* b -  binary mode */
+	start = clock();
 
 	/*write ASCII header to the file (PPM file format)*/
 	fprintf(fp,"P6\n %s\n %d\n %d\n %d\n", comment, iXmax, iYmax, MaxColorComponentValue);
@@ -71,7 +72,7 @@ int main()
 	printf("Computing Mandelbrot Set. Please wait...\n");
 
 	// Get current clock time.
-	start = clock();
+	startCom = clock();
 
 	/* compute and write image data bytes to the file */
 	for(iY = 0; iY < iYmax; iY++)
@@ -140,12 +141,14 @@ int main()
 	// Subtract end from start to get the CPU time used.
 	end = clock();
 	cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+	time_used = ((double)(end - startCom)) / CLOCKS_PER_SEC;
 
 	fclose(fp);
 
 	printf("Completed Computing Mandelbrot Set.\n");
 	printf("File: %s successfully closed.\n", filename);
-	printf("Mandelbrot computational process time: %lf\n", cpu_time_used);
+	printf("Mandelbrot overall time: %lf\n", cpu_time_used);
+	printf("Mandelbrot computational process time: %lf\n", time_used);
 
 	return 0;
  }
