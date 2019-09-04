@@ -61,9 +61,9 @@ int main()
 	clock_t start, end, startCom;
 	double cpu_time_used, time_used;
 
+	start = clock();
 	/*create new file,give it a name and open it in binary mode  */
 	fp = fopen(filename, "wb"); /* b -  binary mode */
-	start = clock();
 
 	/*write ASCII header to the file (PPM file format)*/
 	fprintf(fp,"P6\n %s\n %d\n %d\n %d\n", comment, iXmax, iYmax, MaxColorComponentValue);
