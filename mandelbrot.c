@@ -59,7 +59,7 @@ int main()
 	
 	/* Clock information */
 	clock_t start, end, startCom;
-	double cpu_time_used;
+	double cpu_time_used, time_used;
 
 	/*create new file,give it a name and open it in binary mode  */
 	fp = fopen(filename, "wb"); /* b -  binary mode */
