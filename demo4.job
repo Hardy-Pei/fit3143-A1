@@ -15,6 +15,9 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --ntasks-per-node=4
 
+# this command requests only hs* nodes
+#SBATCH --constraint=Xeon-E5-2667-v3
+
 #SBATCH --account=fit3143
 #SBATCH --qos=fit3143
 ##SBATCH --partition=gpu
