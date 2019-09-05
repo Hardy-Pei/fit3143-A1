@@ -198,8 +198,10 @@ int main(int argc, char* argv[])
 		printf("Initiation process time: %lf\n", startComp-startTime);
 		// parallel computing time
 		printf("Parallel computing process time: %lf\n", startComm-startComp);
+		// Communication time
+		printf("Communication time: %lf\n", startWrite-startComm);
 		// writing time
-		printf("Writing process time: %lf\n", endTime-startComm);
+		printf("Writing process time: %lf\n", endTime-startWrite);
 		fclose(fp);
 		// other processors send the data back to the master processor
 	} else if (rank < row_remain) {
