@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////////////////////////
+// Student Name: Zhihao Pei
+// Student ID: 28294335
+// Student Email: zpei0001@student.monash.edu
+//////////////////////////////////////////////////////////////////////////////////////
+
 // Main program
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,8 +51,13 @@ int main(int argc, char* argv[])
 	const double EscapeRadius = 400;
 	double ER2 = EscapeRadius * EscapeRadius;
 
+	// rank = index of the processor, size = number of the processor
 	int rank, size;
+
+	// processor 0 becomes the master processor
 	int root = 0;
+
+	// how many rows assigned to each processor
 	int rows_per_procs, row_remain;
 	int current, last, index;
 	int i, j, k, m;
@@ -58,11 +69,12 @@ int main(int argc, char* argv[])
 	/* Clock information */
 	double startTime, endTime, startComp, startComm, startWrite;
 
-	// Get current clock time.
-	/* compute and write image data bytes to the file */
+	
 	rows_per_procs = iYmax / size;
 	row_remain = iYmax % size;
+	/* compute and write image data bytes to the file */
 	if (rank == root) {
+		// Get current clock time as the start time
 		startTime = MPI_Wtime();
 		/*create new file,give it a name and open it in binary mode  */
 		fp = fopen(filename, "wb"); /* b -  binary mode */
@@ -70,7 +82,9 @@ int main(int argc, char* argv[])
 		fprintf(fp,"P6\n %s\n %d\n %d\n %d\n", comment, iXmax, iYmax, MaxColorComponentValue);
 		printf("File: %s successfully opened for writing.\n", filename);
 		printf("Computing Mandelbrot Set. Please wait...\n");
+		// create a dynamic array to hold the results
 		colors = (unsigned char*) malloc((iYmax*iXmax*3)*sizeof(unsigned char));
+		// Get current time as the start of the computation
 		startComp = MPI_Wtime();
 	} else if (rank < row_remain) {
 		colors = (unsigned char*) malloc(((rows_per_procs+1)*iXmax*3)*sizeof(unsigned char));
@@ -135,18 +149,13 @@ int main(int argc, char* argv[])
 					colors[index+2] = 255;
 				}
 			}
-			// printf("%d,%d,%d\n", current, iX,rank);
-			// printf("%d, %d, %d\n", colors[current+iX],colors[current+iX+1], colors[current+iX+2]);
 		}
 	}
-	// for(i=0;i<rows_per_procs*iXmax*3;i++) {
-	// 	printf("%d\n", colors[i]);
-	// }
-	// Get the clock current time again
-	// Subtract end from start to get the CPU time used.
 	if (rank == root) {
+		// Get the clock current time as the start of the communication
 		startComm = MPI_Wtime();
 		current += iXmax*3;
+		// master processor gathers data from all other processors
 		for (i=1; i<size; i++) {
 			if (i<row_remain) {
 				MPI_Recv(colors+current, (rows_per_procs+1)*iXmax*3, MPI_UNSIGNED_CHAR, i, 0, MPI_COMM_WORLD, &stat);
@@ -156,8 +165,10 @@ int main(int argc, char* argv[])
 				current += rows_per_procs*iXmax*3;
 			}
 		}
+		// Get the clock current time as the start of the writing
 		startWrite = MPI_Wtime();
 		current = 0;
+		// retrieve data from the array and write into the file
 		for (j=root; j<rows_per_procs+1; j++) {
 			if (j == rows_per_procs) {
 				last = row_remain;
@@ -166,9 +177,7 @@ int main(int argc, char* argv[])
 			}
 			for (k=root; k<last; k++) {
 				for (m=0;m<iXmax;m++) {
-					// printf("%d\n", colors[current+m]);
 					fwrite(colors+(current+m*3), 1, 3, fp);
-					// printf("%d,%d,%d\n", colors[current+m],colors[current+m+1],colors[current+m+2]);
 				}
 				if (k < row_remain) {
 					current += ((rows_per_procs+1)*iXmax*3);
@@ -179,14 +188,20 @@ int main(int argc, char* argv[])
 				}
 			}
 		}
+		// Get the current time as the end of the program
 		endTime = MPI_Wtime();
 		printf("Completed Computing Mandelbrot Set.\n");
 		printf("File: %s successfully closed.\n", filename);
+		// overall time
 		printf("Mandelbrot computational process time: %lf\n", endTime-startTime);
+		// initiation time
 		printf("Initiation process time: %lf\n", startComp-startTime);
+		// parallel computing time
 		printf("Parallel computing process time: %lf\n", startComm-startComp);
+		// writing time
 		printf("Writing process time: %lf\n", endTime-startComm);
 		fclose(fp);
+		// other processors send the data back to the master processor
 	} else if (rank < row_remain) {
 		MPI_Send(colors, (rows_per_procs+1)*iXmax*3, MPI_UNSIGNED_CHAR, 0, 0, MPI_COMM_WORLD);
 	} else {
